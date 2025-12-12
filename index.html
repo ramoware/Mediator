@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mediator | Swachh Bharat, Green Bharat</title><!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;family=Montserrat:wght@700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><!-- Element SDK -->
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        :root {
+            --green: #138808;
+            --saffron: #FF9933;
+            --blue: #000080;
+            --light-green: #4CAF50;
+            --light-blue: #2196F3;
+            --white: #FFFFFF;
+            --gray: #f5f5f5;
+            --dark-gray: #333333;
+
+            /* animation tokens */
+            --anim-fast: 220ms;
+            --anim-medium: 420ms;
+            --anim-slow: 820ms;
+            --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-1: 0 6px 18px rgba(0,0,0,0.08);
+            --shadow-2: 0 18px 50px rgba(0,0,0,0.12);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        body {
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            scroll-behavior: smooth;
+            cursor: none !important;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background-color: var(--white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            cursor: none !important;
+        }
+        
+        /* Broom Cursor */
+        .broom-cursor {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            font-size: 48px;
+            pointer-events: none;
+            z-index: 99999;
+            left: 0;
+            top: 0;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            line-height: 60px;
+            opacity: 0;
+            transition: opacity var(--anim-fast) var(--ease-default), transform var(--anim-fast) var(--ease-default);
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+            will-change: transform, left, top;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        /* Make sure interactive elements are clickable */
+        a, button, input, textarea, select, 
+        .chatbot-button, .cta-button, .mobile-menu-toggle,
+        .submit-button, .form-group input, .form-group select, 
+        .form-group textarea, .sample-q, #chatbot-close,
+        .social-link, .footer-links a, .nav-link,
+        .involvement-card, .step, .benefit-card {
+            cursor: none !important;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--green) 0%, var(--light-green) 100%);
+            color: white;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-1);
+            transition: all var(--anim-medium) var(--ease-default);
+            will-change: transform, box-shadow, height;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform var(--anim-fast) var(--ease-default), opacity var(--anim-fast);
+            transform-origin: left center;
+        }
+        
+        .logo:hover {
+            transform: translateY(-2px) scale(1.03);
+            opacity: 0.98;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--green);
+            font-size: 24px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+            animation: pulse 3s ease-in-out infinite;
+            transition: transform var(--anim-medium) var(--ease-default);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        
+        .logo-text h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            transition: transform var(--anim-medium) var(--ease-default);
+        }
+        
+        .logo-text p {
+            font-size: 12px;
+            opacity: 0.95;
+            transition: opacity var(--anim-fast) var(--ease-default);
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all var(--anim-fast) var(--ease-default);
+            position: relative;
+            padding: 5px 0;
+            transform-origin: center center;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 60%;
+            height: 3px;
+            background: rgba(255,255,255,0.95);
+            transition: transform var(--anim-fast) var(--ease-default), opacity var(--anim-fast);
+            border-radius: 4px;
+            opacity: 0;
+        }
+        
+        .nav-link:hover::after {
+            transform: translateX(-50%) scaleX(1);
+            opacity: 1;
+        }
+        
+        .nav-link:hover {
+            opacity: 0.95;
+            transform: translateY(-3px);
+        }
+        
+        .cta-button {
+            background: white;
+            color: var(--green);
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform var(--anim-fast) var(--ease-default), box-shadow var(--anim-fast);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-2);
+        }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform var(--anim-fast);
+        }
+        
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center 35%;
+            background-attachment: fixed;
+            color: white;
+            padding: 120px 20px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: background-position var(--anim-slow) linear;
+            will-change: background-position;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(19, 136, 8, 0.25), transparent 20%);
+            pointer-events: none;
+            transition: opacity var(--anim-medium) var(--ease-default);
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.55);
+            line-height: 1.08;
+            animation: fadeInUp 0.8s var(--ease-default) both;
+            transform-origin: center top;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(36px) scale(0.995); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.98;
+            line-height: 1.7;
+            animation: fadeInUp 0.9s calc(var(--anim-fast) + 120ms) var(--ease-default) both;
+        }
+        
+        .modi-quote {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border-left: 5px solid var(--saffron);
+            padding: 35px;
+            border-radius: 15px;
+            margin-top: 60px;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
+            transition: transform var(--anim-medium) var(--ease-default), box-shadow var(--anim-medium);
+            animation: fadeInUp 1s calc(var(--anim-medium) + 80ms) var(--ease-default) both;
+        }
+        
+        .modi-quote:hover {
+            transform: translateY(-8px) rotate(-0.25deg);
+            box-shadow: var(--shadow-2);
+        }
+        
+        .modi-quote p {
+            font-size: 24px;
+            font-style: italic;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .modi-quote .author {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--saffron);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .modi-quote .author::before {
+            content: '';
+            width: 40px;
+            height: 2px;
+            background: var(--saffron);
+        }
+        
+        /* SVG separator for polished look */
+        .section-sep {
+            display: block;
+            width: 100%;
+            margin-top: -40px;
+            transform: translateY(1px);
+            pointer-events: none;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: var(--green);
+            color: white;
+            padding: 60px 20px;
+            position: relative;
+            overflow: visible;
+        }
+        
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            transition: transform var(--anim-medium) var(--ease-default), box-shadow var(--anim-medium);
+            will-change: transform;
+        }
+        
+        .stat-item:hover { transform: translateY(-10px); box-shadow: var(--shadow-1); }
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--saffron);
+            margin-bottom: 10px;
+            display: block;
+            transition: transform var(--anim-medium) var(--ease-default);
+        }
+        
+        .stat-label {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+        
+        /* Overview Section */
+        .overview {
+            padding: 100px 20px;
+            background: var(--gray);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 42px;
+            color: var(--green);
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            transition: transform var(--anim-medium) var(--ease-default);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--dark-gray);
+            max-width: 700px;
+            margin: 0 auto 60px;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+        
+        .overview-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .overview-image {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            transition: transform var(--anim-medium) var(--ease-default), filter var(--anim-medium);
+            height: 450px;
+        }
+        
+        .overview-image:hover { 
+            transform: translateY(-8px) scale(1.01); 
+            filter: saturate(1.06); 
+        }
+        
+        .overview-image img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+            display: block; 
+            transition: transform 0.6s ease;
+        }
+        
+        .overview-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        .overview-text p { margin-bottom: 20px; font-size: 17px; line-height: 1.8; }
+        
+        .key-features { margin-top: 35px; }
+        
+        .key-features h3 { color: var(--green); margin-bottom: 20px; font-size: 24px; }
+        
+        .key-features ul { list-style: none; }
+        
+        .key-features li { margin-bottom: 15px; display: flex; align-items: center; gap: 12px; font-size: 16px; padding: 10px; background: white; border-radius: 8px; transition: all var(--anim-fast) var(--ease-default); }
+        
+        .key-features li:hover { transform: translateX(8px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+        
+        .key-features i { color: var(--green); font-size: 20px; }
+        
+        /* How It Works */
+        .how-it-works { padding: 100px 20px; background: white; }
+        
+        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 35px; max-width: 1200px; margin: 60px auto 0; }
+        
+        .step { background: var(--gray); padding: 45px 35px; border-radius: 20px; text-align: center; position: relative; transition: all 0.45s var(--ease-default); border: 3px solid transparent; will-change: transform; }
+        
+        /* hide step details until hover */
+        .step p { opacity: 0; max-height: 0; overflow: hidden; transform: translateY(8px); transition: opacity 320ms var(--ease-default), transform 320ms var(--ease-default), max-height 320ms ease; }
+        .step:hover p { opacity: 1; max-height: 240px; transform: translateY(0); }
+
+        .step:hover { transform: translateY(-18px) rotate(-0.25deg); border-color: var(--green); box-shadow: 0 20px 50px rgba(19, 136, 8, 0.12); }
+        
+        .step-number { width: 60px; height: 60px; background: linear-gradient(135deg, var(--green), var(--light-green)); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin: 0 auto 25px; box-shadow: 0 8px 26px rgba(19, 136, 8, 0.16); }
+        
+        .step h3 { color: var(--green); margin-bottom: 15px; font-size: 22px; font-weight: 700; }
+        
+        .step-icon { margin-top: 25px; font-size: 48px; color: var(--green); opacity: 0.9; transform-origin: center; transition: transform var(--anim-medium); }
+        
+        .step:hover .step-icon { transform: translateY(-6px) scale(1.04); }
+        
+        /* Benefits Section */
+        .benefits { padding: 100px 20px; background: linear-gradient(135deg, var(--green) 0%, var(--light-green) 100%); color: white; position: relative; overflow: hidden; }
+        
+        .benefits::before { content: ''; position: absolute; top: -50%; right: -10%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(255,255,255,0.08), transparent); border-radius: 50%; }
+
+        .benefits-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 35px; max-width: 1200px; margin: 60px auto 0; position: relative; z-index: 1; }
+
+        .benefit-card { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); padding: 45px 35px; border-radius: 20px; text-align: center; transition: all 0.45s var(--ease-default); border: 2px solid rgba(255, 255, 255, 0.14); }
+        
+        .benefit-card p { opacity: 1; max-height: none; transform: translateY(0); transition: none; }
+
+        .benefit-card:hover { transform: translateY(-18px) rotate(-0.18deg); background: rgba(255, 255, 255, 0.18); box-shadow: 0 24px 60px rgba(0,0,0,0.14); }
+        
+        .benefit-icon { font-size: 50px; margin-bottom: 25px; color: var(--saffron); transform: translateY(0); transition: transform var(--anim-medium) var(--ease-default); }
+        
+        .benefit-card:hover .benefit-icon { transform: translateY(-8px) rotate(-6deg); }
+        
+        .benefit-card h3 { font-size: 22px; margin-bottom: 15px; font-weight: 700; }
+        
+        .benefit-card p { line-height: 1.8; opacity: 0.98; }
+        
+        /* Get Involved */
+        .get-involved { padding: 100px 20px; background: white; text-align: center; }
+        
+        .involved-container { max-width: 700px; margin: 0 auto; }
+        
+        .involved-intro { font-size: 18px; margin-bottom: 40px; line-height: 1.8; }
+        
+        .involvement-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-bottom: 50px; }
+        
+        .involvement-card { background: var(--gray); padding: 30px; border-radius: 15px; text-align: center; transition: all 0.35s var(--ease-default); cursor: pointer; }
+        
+        .involvement-card p { opacity: 1; max-height: none; transform: translateY(0); transition: none; }
+
+        .involvement-card:hover { transform: translateY(-10px); box-shadow: 0 18px 40px rgba(0,0,0,0.08); }
+        
+        .involvement-card-icon { font-size: 48px; color: var(--green); margin-bottom: 18px; transition: transform var(--anim-medium); }
+        
+        .involvement-card:hover .involvement-card-icon { transform: translateY(-6px); }
+        
+        /* Form styles kept but smoothed */
+        .contact-form-section h3 { color: var(--green); margin-bottom: 35px; text-align: center; font-size: 28px; }
+        
+        .form-group { margin-bottom: 25px; text-align: left; }
+        
+        .form-group label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--dark-gray); font-size: 15px; }
+        
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: 'Poppins', sans-serif; font-size: 16px; transition: all var(--anim-fast) var(--ease-default); background: white; }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--green); outline: none; box-shadow: 0 6px 28px rgba(19,136,8,0.08); }
+        
+        .submit-button { background: linear-gradient(135deg, var(--green), var(--light-green)); color: white; border: none; padding: 16px 45px; border-radius: 50px; font-size: 18px; font-weight: 600; cursor: pointer; transition: transform var(--anim-fast) var(--ease-default), box-shadow var(--anim-fast); display: inline-flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(19, 136, 8, 0.18); }
+        
+        .submit-button:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(19,136,8,0.18); }
+        
+        .submit-button:active { transform: translateY(-2px); }
+        
+        /* Success Message */
+        .success-message { background: linear-gradient(135deg, var(--green), var(--light-green)); color: white; padding: 20px; border-radius: 10px; margin-top: 20px; display: none; align-items: center; gap: 15px; animation: slideIn 0.5s var(--ease-default); }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .success-message i { font-size: 24px; }
+        
+        /* Chatbot */
+        .chatbot-container { position: fixed; bottom: 30px; right: 20px; z-index: 1000; }
+        
+        .chatbot-button { width: 65px; height: 65px; background: linear-gradient(135deg, var(--green), var(--light-green)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 10px 30px rgba(19, 136, 8, 0.35); transition: transform var(--anim-fast) var(--ease-default), box-shadow var(--anim-fast); }
+        
+        .chatbot-button:hover { transform: scale(1.15); }
+        
+        /* Chatbot window is hidden by default */
+        .chatbot-window { 
+            display: none; /* Hidden by default */
+            position: fixed; 
+            bottom: 110px; 
+            right: 20px; 
+            width: min(420px, calc(100vw - 40px)); 
+            max-width: 420px; 
+            max-height: 72vh; 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18); 
+            flex-direction: column; 
+            overflow: hidden; 
+            z-index: 1001;
+        }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chatbot-header { background: linear-gradient(135deg, var(--green), var(--light-green)); color: white; padding: 14px; border-radius: 16px 16px 0 0; display: flex; align-items: center; gap: 12px; }
+        
+        .chatbot-header i { font-size: 18px; }
+        
+        .chatbot-body { padding: 12px; max-height: calc(72vh - 140px); overflow-y: auto; background: #fafafa; display: flex; flex-direction: column; gap: 8px; }
+        
+        .chat-message { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; max-width: 85%; line-height: 1.6; animation: messageSlide 0.3s var(--ease-default) both; }
+        
+        @keyframes messageSlide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .bot-message { background: white; align-self: flex-start; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+        
+        .user-message { background: linear-gradient(135deg, var(--green), var(--light-green)); color: white; margin-left: auto; align-self: flex-end; text-align: right; }
+        
+        .chatbot-input { display: flex; padding: 10px; border-top: 1px solid #eee; gap: 12px; background: white; border-radius: 0 0 16px 16px; }
+        
+        .chatbot-input input { flex: 1; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 20px; font-family: 'Poppins', sans-serif; font-size: 14px; transition: border-color 0.2s ease; }
+        
+        .chatbot-input input:focus { border-color: var(--green); outline: none; }
+        
+        .chatbot-input button { background: var(--green); color: white; border: none; padding: 8px 12px; border-radius: 14px; cursor: pointer; transition: transform var(--anim-fast); }
+        
+        .chatbot-input button:hover { transform: scale(1.02); }
+        
+        /* Footer */
+        footer { background: var(--dark-gray); color: white; padding: 70px 20px 30px; }
+        
+        .footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 50px; }
+        
+        .footer-column h3 { font-size: 22px; margin-bottom: 25px; color: var(--saffron); font-weight: 700; }
+        
+        .footer-column p { line-height: 1.8; opacity: 0.9; }
+        
+        .footer-links { list-style: none; }
+        
+        .footer-links li { margin-bottom: 12px; }
+        
+        .footer-links a { color: #ddd; text-decoration: none; transition: all var(--anim-fast) var(--ease-default); display: inline-flex; align-items: center; gap: 10px; }
+        
+        .footer-links a:hover { color: var(--saffron); transform: translateX(6px); }
+        
+        .social-links { display: flex; gap: 15px; margin-top: 25px; }
+        
+        .social-link { width: 45px; height: 45px; background: rgba(255, 255, 255, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; transition: all var(--anim-fast) var(--ease-default); font-size: 18px; }
+        
+        .social-link:hover { background: var(--saffron); transform: translateY(-6px); }
+        
+        .copyright { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.06); color: #aaa; font-size: 14px; }
+        
+        /* Scroll to Top Button */
+        .scroll-to-top { position: fixed; bottom: 110px; right: 30px; width: 50px; height: 50px; background: var(--saffron); color: white; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 28px rgba(255, 153, 51, 0.28); transition: transform var(--anim-fast) var(--ease-default), box-shadow var(--anim-fast); z-index: 999; }
+        
+        .scroll-to-top:hover { transform: translateY(-6px); box-shadow: 0 18px 50px rgba(255, 153, 51, 0.35); }
+        
+        /* Loading Spinner */
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero h1 { font-size: 42px; }
+            .overview-content { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .mobile-menu-toggle { display: block; }
+            .section-title { font-size: 36px; }
+            .overview-image { height: 400px; }
+        }
+        @media (max-width: 768px) {
+            .hero { padding: 80px 20px 60px; }
+            .hero h1 { font-size: 32px; }
+            .hero p { font-size: 16px; }
+            .modi-quote p { font-size: 20px; }
+            .section-title { font-size: 28px; }
+            .steps-container, .benefits-container { grid-template-columns: 1fr; }
+            .involvement-options { grid-template-columns: 1fr; }
+            .chatbot-window { right: 12px; bottom: 90px; }
+            .stats-container { grid-template-columns: 1fr 1fr; }
+            .stat-number { font-size: 36px; }
+            .overview-image { height: 350px; }
+        }
+        @media (max-width: 480px) {
+            .header-container { height: 70px; }
+            .logo-icon { width: 40px; height: 40px; font-size: 20px; }
+            .logo-text h1 { font-size: 20px; }
+            .cta-button { padding: 10px 20px; font-size: 14px; }
+            .hero h1 { font-size: 26px; }
+            .stats-container { grid-template-columns: 1fr; }
+            .overview-image { height: 280px; }
+        }
+
+        /* Reveal helpers */
+        .animate-in { opacity: 0; transform: translateY(28px); transition: opacity 0.72s var(--ease-default), transform 0.72s var(--ease-default); }
+        .animate-in.visible { opacity: 1; transform: translateY(0); }
+
+        .fade-in-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.72s var(--ease-default), transform 0.72s var(--ease-default); }
+        .fade-in-left.visible { opacity: 1; transform: translateX(0); }
+
+        .fade-in-right { opacity: 0; transform: translateX(40px); transition: opacity 0.72s var(--ease-default), transform 0.72s var(--ease-default); }
+        .fade-in-right.visible { opacity: 1; transform: translateX(0); }
+
+        /* accessible reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Header -->
+  <header id="main-header">
+   <div class="header-container">
+    <div class="logo" onclick="scrollToTop()">
+     <div class="logo-icon"><i class="fas fa-recycle"></i>
+     </div>
+     <div class="logo-text">
+      <h1>Mediator</h1>
+      <p>For Recyclable Wastes</p>
+     </div>
+    </div>
+    <ul class="nav-links" id="nav-links">
+     <li><a href="#overview" class="nav-link">Overview</a></li>
+     <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+     <li><a href="#benefits" class="nav-link">Benefits</a></li>
+     <li><a href="#get-involved" class="nav-link">Get Involved</a></li>
+    </ul><a href="#get-involved" class="cta-button"> <i class="fas fa-handshake"></i> <span id="cta-text">Join Now</span> </a> <button class="mobile-menu-toggle" aria-label="Toggle menu" id="mobile-toggle"> <i class="fas fa-bars"></i> </button>
+   </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+   <div class="hero-content">
+    <h1 id="hero-heading">Connecting Communities, Reducing Waste, and Promoting Sustainability</h1>
+    <p id="hero-subtext">We're on a mission to revolutionize waste management in India. Our platform connects local communities with resources to collect and recycle waste, promoting a cleaner and greener environment.</p>
+    <div class="modi-quote">
+     <p id="modi-quote-text">"Swachh Bharat, Green Bharat"</p>
+     <div class="author"><span>Prime Minister Narendra Modi</span>
+     </div>
+    </div>
+   </div>
+   <!-- subtle decorative svg between hero and stats for polish -->
+   
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+   <div class="stats-container">
+    <div class="stat-item animate-in"><span class="stat-number" data-target="10000">0</span>
+     <div class="stat-label">Communities Served</div>
+    </div>
+    <div class="stat-item animate-in"><span class="stat-number" data-target="50000">0</span>
+     <div class="stat-label">Tons of Waste Recycled</div>
+    </div>
+    <div class="stat-item animate-in"><span class="stat-number" data-target="500">0</span>
+     <div class="stat-label">Active Volunteers</div>
+    </div>
+    <div class="stat-item animate-in"><span class="stat-number" data-target="25">0</span>
+     <div class="stat-label">Partner Companies</div>
+    </div>
+   </div>
+  </section>
+
+  <!-- Overview Section -->
+  <section class="overview" id="overview">
+   <h2 class="section-title animate-in">Mediator for Recyclable Wastes</h2>
+   <p class="section-subtitle animate-in">Empowering Communities, Reducing Waste, and Promoting Sustainability</p>
+   <div class="overview-content">
+    <div class="overview-image fade-in-left">
+     <!-- Updated Image URL -->
+     <img src="https://indiaeducationdiary.in/wp-content/uploads/2024/10/GY2wMRaXkAAuKu9.jpeg" alt="Community waste collection and recycling initiative" loading="lazy">
+    </div>
+    <div class="overview-text fade-in-right">
+     <p>Our platform connects local communities with resources to collect and recycle waste, promoting a cleaner and greener environment. We provide a commission-based model to incentivize participation and ensure sustainability.</p>
+     <p>We're building a scalable platform to support India's Swachh Bharat Abhiyan initiative, empowering communities to take ownership of waste management and creating a sustainable ecosystem for waste recycling.</p>
+     <div class="key-features">
+      <h3>Key Features:</h3>
+      <ul>
+       <li><i class="fas fa-check-circle"></i> <span>Community-led waste management</span></li>
+       <li><i class="fas fa-check-circle"></i> <span>Commission-based model</span></li>
+       <li><i class="fas fa-check-circle"></i> <span>Partnerships with recycling companies</span></li>
+       <li><i class="fas fa-check-circle"></i> <span>Scalable platform for nationwide expansion</span></li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works" id="how-it-works">
+   <h2 class="section-title animate-in">How It Works</h2>
+   <p class="section-subtitle animate-in">A simple 4-step process to transform waste into wealth</p>
+   <div class="steps-container">
+    <div class="step animate-in">
+     <div class="step-number">1</div>
+     <h3>Communities Enroll</h3>
+     <p>Local communities register on our platform and start collecting recyclable waste from households and businesses.</p>
+     <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+    </div>
+    <div class="step animate-in">
+     <div class="step-number">2</div>
+     <h3>Resource Provision</h3>
+     <p>We provide necessary resources, training, and support for efficient collection, sorting, and processing of waste.</p>
+     <div class="step-icon"><i class="fas fa-tools"></i></div>
+    </div>
+    <div class="step animate-in">
+     <div class="step-number">3</div>
+     <h3>Earn Commissions</h3>
+     <p>Participants earn commissions based on the quantity and quality of waste collected, creating sustainable income.</p>
+     <div class="step-icon"><i class="fas fa-rupee-sign"></i></div>
+    </div>
+    <div class="step animate-in">
+     <div class="step-number">4</div>
+     <h3>Responsible Disposal</h3>
+     <p>We partner with certified recycling companies to ensure environmentally responsible processing of collected waste.</p>
+     <div class="step-icon"><i class="fas fa-recycle"></i></div>
+    </div>
+   </div>
+  </section>
+
+  <!-- Benefits -->
+  <section class="benefits" id="benefits">
+   <h2 class="section-title animate-in" style="color: white;">Benefits</h2>
+   <p class="section-subtitle animate-in" style="color: rgba(255,255,255,0.95);">Creating value for communities and the environment</p>
+   <div class="benefits-container">
+    <div class="benefit-card animate-in">
+     <div class="benefit-icon"><i class="fas fa-hand-holding-usd"></i></div>
+     <h3>Community Income</h3>
+     <p>Communities earn additional income through commissions, creating sustainable livelihoods while contributing to environmental conservation.</p>
+    </div>
+    <div class="benefit-card animate-in">
+     <div class="benefit-icon"><i class="fas fa-trash-alt"></i></div>
+     <h3>Reduced Landfill Waste</h3>
+     <p>Significantly reduces the amount of waste going to landfills by diverting recyclable materials to proper processing facilities.</p>
+    </div>
+    <div class="benefit-card animate-in">
+     <div class="benefit-icon"><i class="fas fa-seedling"></i></div>
+     <h3>Environmental Sustainability</h3>
+     <p>Promotes circular economy principles and supports India's commitment to sustainable development and environmental protection.</p>
+    </div>
+    <div class="benefit-card animate-in">
+     <div class="benefit-icon"><i class="fas fa-flag"></i></div>
+     <h3>Supports Swachh Bharat</h3>
+     <p>Directly contributes to India's Swachh Bharat Abhiyan initiative by promoting cleanliness and proper waste management practices.</p>
+    </div>
+    <div class="benefit-card animate-in">
+     <div class="benefit-icon"><i class="fas fa-users-cog"></i></div>
+     <h3>Employment Generation</h3>
+     <p>Creates job opportunities and skill development programs for community members, fostering economic growth and social empowerment.</p>
+    </div>
+    <div class="benefit-card animate-in">
+     <div class="benefit-icon"><i class="fas fa-award"></i></div>
+     <h3>Community Recognition</h3>
+     <p>Top-performing communities receive awards and recognition, encouraging healthy competition and sustained participation in waste management efforts.</p>
+    </div>
+   </div>
+  </section>
+
+  <!-- Get Involved -->
+  <section class="get-involved" id="get-involved">
+   <h2 class="section-title animate-in">Get Involved</h2>
+   <p class="section-subtitle animate-in">Join our community today and start making a difference!</p>
+   <div class="involved-container">
+    <div class="involved-intro animate-in">
+     <p>Whether you're a community leader, individual volunteer, or organization looking to partner with us, there's a place for you in our mission to create a cleaner, greener India.</p>
+    </div>
+    <div class="involvement-options animate-in">
+     <div class="involvement-card">
+      <div class="involvement-card-icon"><i class="fas fa-users"></i></div>
+      <h4>For Communities</h4>
+      <p>Register your community to start collecting waste and earning commissions</p>
+     </div>
+     <div class="involvement-card">
+      <div class="involvement-card-icon"><i class="fas fa-building"></i></div>
+      <h4>For Companies</h4>
+      <p>Partner with us for responsible waste disposal and recycling solutions</p>
+     </div>
+    </div>
+    <div class="contact-form-section animate-in">
+     <h3>Contact Us</h3>
+     <form id="contact-form">
+      <div class="form-group"><label for="name">Full Name</label> <input type="text" id="name" name="name" required placeholder="Enter your full name">
+      </div>
+      <div class="form-group"><label for="email">Email Address</label> <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+      </div>
+      <div class="form-group"><label for="phone">Phone Number</label> <input type="tel" id="phone" name="phone" required placeholder="+91 XXXXX XXXXX">
+      </div>
+      <div class="form-group"><label for="interest">I'm interested in</label> <select id="interest" name="interest" required> <option value="">Select an option</option> <option value="community">Joining as a Community</option> <option value="volunteer">Volunteering</option> <option value="partner">Partnership</option> <option value="investment">Investment Opportunity</option> <option value="other">Other</option> </select>
+      </div>
+      <div class="form-group"><label for="message">Message</label> <textarea id="message" name="message" rows="4" placeholder="Tell us about your interest in our initiative..."></textarea>
+      </div><button type="submit" class="submit-button" id="submit-btn"> <i class="fas fa-paper-plane"></i> Send Message </button>
+      <div class="success-message" id="success-message"><i class="fas fa-check-circle"></i>
+       <div id="success-text">Thank you! We'll contact you within 24 hours.</div>
+      </div>
+     </form>
+    </div>
+   </div>
+  </section>
+
+  <!-- Chatbot - Initially Hidden -->
+  <div class="chatbot-container" aria-live="polite">
+   <button class="chatbot-button floating" id="chatbot-toggle" aria-expanded="false" aria-controls="chatbot-window" title="Open chat">
+    <i class="fas fa-comment-dots" aria-hidden="true"></i>
+   </button>
+   <div class="chatbot-window" id="chatbot-window" role="dialog" aria-label="Mediator Assistant" aria-hidden="true">
+    <div class="chatbot-header">
+     <div style="display:flex;align-items:center;gap:12px;flex:1;">
+      <i class="fas fa-robot" aria-hidden="true"></i>
+      <div>
+       <h4 style="margin: 0; font-size: 16px;">Mediator Assistant</h4>
+       <p style="margin: 0; opacity: 0.9; font-size: 12px;">Ask a quick question or choose one below</p>
+      </div>
+     </div>
+     <button id="chatbot-close" aria-label="Close chat" style="background:transparent;border:none;color:white;font-size:18px;cursor:pointer;margin-left:8px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="chatbot-body" id="chatbot-messages">
+     <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="chat-message bot-message">Hi! I'm Mediator Assistant — choose a sample question or type below.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+       <button class="sample-q" data-q="How can my community join?">How can my community join?</button>
+       <button class="sample-q" data-q="What materials do you accept?">What materials do you accept?</button>
+       <button class="sample-q" data-q="How do commissions work?">How do commissions work?</button>
+       <button class="sample-q" data-q="Partner with companies">Partner with companies</button>
+      </div>
+     </div>
+    </div>
+    <form class="chatbot-input" id="chatbot-form" aria-label="Send message">
+     <input type="text" id="chatbot-input" placeholder="Type your message..." aria-label="Chat message" autocomplete="off">
+     <button id="send-message" aria-label="Send message"> <i class="fas fa-paper-plane"></i> </button>
+    </form>
+   </div>
+  </div>
+
+  <!-- Scroll to Top Button -->
+  <div class="scroll-to-top" id="scroll-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+   <div class="footer-container">
+    <div class="footer-column animate-in">
+     <h3>Mediator</h3>
+     <p>Connecting Communities, Reducing Waste, and Promoting Sustainability across India.</p>
+     <div class="social-links"><a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a> <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a> <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a> <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+     </div>
+    </div>
+    <div class="footer-column animate-in">
+     <h3>Quick Links</h3>
+     <ul class="footer-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#benefits">Benefits</a></li>
+      <li><a href="#get-involved">Get Involved</a></li>
+     </ul>
+    </div>
+    <div class="footer-column animate-in">
+     <h3>Contact Info</h3>
+     <ul class="footer-links">
+      <li><a href="mailto:info@mediatorindia.com"><i class="fas fa-envelope"></i> info@mediatorindia.com</a></li>
+      <li><a href="tel:+911234567890"><i class="fas fa-phone"></i> +91 123 456 7890</a></li>
+      <li><i class="fas fa-map-marker-alt"></i> Maharashtra, India</li>
+      <li><i class="fas fa-clock"></i> Mon-Fri: 9AM-6PM</li>
+     </ul>
+    </div>
+    <div class="footer-column animate-in">
+     <h3>Our Mission</h3>
+     <p>Supporting India's Swachh Bharat Abhiyan by creating sustainable waste management solutions that empower communities and protect our environment for future generations.</p>
+    </div>
+   </div>
+   <div class="copyright">
+    <p>© 2024 Mediator for Recyclable Wastes. All rights reserved. | Proudly supporting Swachh Bharat Abhiyan</p>
+   </div>
+  </footer>
+
+  <!-- Broom Cursor Script -->
+  <script>
+        // Simple Broom Cursor
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create cursor element
+            const cursor = document.createElement('div');
+            cursor.className = 'broom-cursor';
+            cursor.innerHTML = '🧹';
+            document.body.appendChild(cursor);
+            
+            // Variables for smooth movement and rotation
+            let mouseX = 0;
+            let mouseY = 0;
+            let cursorX = 0;
+            let cursorY = 0;
+            let lastMouseX = 0;
+            let lastMouseY = 0;
+            let velocityX = 0;
+            let velocityY = 0;
+            let angle = 0;
+            let cursorVisible = false;
+            let animationFrameId = null;
+            
+            // Show cursor on mouse move
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                
+                // Calculate velocity for rotation
+                velocityX = mouseX - lastMouseX;
+                velocityY = mouseY - lastMouseY;
+                lastMouseX = mouseX;
+                lastMouseY = mouseY;
+                
+                // Calculate angle based on velocity
+                if (Math.abs(velocityX) > 0.1 || Math.abs(velocityY) > 0.1) {
+                    angle = Math.atan2(velocityY, velocityX) * (180 / Math.PI);
+                }
+                
+                // Show cursor if not visible
+                if (!cursorVisible) {
+                    cursor.style.opacity = '1';
+                    cursorVisible = true;
+                }
+                
+                // Start animation loop if not already running
+                if (!animationFrameId) {
+                    animateCursor();
+                }
+            });
+            
+            // Hide cursor when mouse leaves window
+            document.addEventListener('mouseleave', () => {
+                cursor.style.opacity = '0';
+                cursorVisible = false;
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+            });
+            
+            // Show cursor when mouse enters window
+            document.addEventListener('mouseenter', () => {
+                if (!cursorVisible) {
+                    cursor.style.opacity = '1';
+                    cursorVisible = true;
+                }
+            });
+            
+            // Smooth animation function
+            function animateCursor() {
+                // Smooth follow with easing
+                cursorX += (mouseX - cursorX) * 0.2;
+                cursorY += (mouseY - cursorY) * 0.2;
+                
+                // Add subtle floating effect
+                const time = Date.now() * 0.001;
+                const floatX = Math.sin(time * 1.5) * 1.5;
+                const floatY = Math.cos(time * 1.8) * 1.5;
+                
+                // Apply position and rotation
+                cursor.style.left = cursorX + 'px';
+                cursor.style.top = cursorY + 'px';
+                
+                // Combine rotation with floating effect
+                const currentAngle = angle + Math.sin(time * 2) * 3;
+                cursor.style.transform = `translate(-50%, -50%) translate(${floatX}px, ${floatY}px) rotate(${currentAngle}deg) scale(${1 + Math.sin(time) * 0.05})`;
+                
+                // Continue animation
+                animationFrameId = requestAnimationFrame(animateCursor);
+            }
+            
+            // Hide default cursor for all elements
+            const style = document.createElement('style');
+            style.textContent = `
+                /* Hide default cursor for specific interactive elements */
+                a:hover, 
+                button:hover, 
+                input:hover, 
+                textarea:hover, 
+                select:hover,
+                .chatbot-button:hover,
+                .cta-button:hover,
+                .mobile-menu-toggle:hover,
+                .submit-button:hover,
+                .form-group input:hover,
+                .form-group select:hover,
+                .form-group textarea:hover,
+                .sample-q:hover,
+                #chatbot-close:hover,
+                .social-link:hover,
+                .footer-links a:hover,
+                .nav-link:hover,
+                .involvement-card:hover,
+                .step:hover,
+                .benefit-card:hover {
+                    cursor: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Handle page visibility changes
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    cursor.style.opacity = '0';
+                    if (animationFrameId) {
+                        cancelAnimationFrame(animationFrameId);
+                        animationFrameId = null;
+                    }
+                } else if (cursorVisible) {
+                    cursor.style.opacity = '1';
+                    if (!animationFrameId) {
+                        animateCursor();
+                    }
+                }
+            });
+        });
+    </script>
+  
+  <script>
+        // Configuration object for editable content
+        const defaultConfig = {
+            hero_heading: "Connecting Communities, Reducing Waste, and Promoting Sustainability",
+            hero_subtext: "We're on a mission to revolutionize waste management in India. Our platform connects local communities with resources to collect and recycle waste, promoting a cleaner and greener environment.",
+            modi_quote: "Swachh Bharat, Green Bharat",
+            cta_button_text: "Join Now"
+        };
+
+        // Element SDK Configuration
+        async function onConfigChange(config) {
+            const heroHeading = document.getElementById('hero-heading');
+            if (heroHeading) heroHeading.textContent = config.hero_heading || defaultConfig.hero_heading;
+
+            const heroSubtext = document.getElementById('hero-subtext');
+            if (heroSubtext) heroSubtext.textContent = config.hero_subtext || defaultConfig.hero_subtext;
+
+            const modiQuote = document.getElementById('modi-quote-text');
+            if (modiQuote) modiQuote.textContent = `"${config.modi_quote || defaultConfig.modi_quote}"`;
+
+            const ctaText = document.getElementById('cta-text');
+            if (ctaText) ctaText.textContent = config.cta_button_text || defaultConfig.cta_button_text;
+        }
+
+        function mapToCapabilities(config) {
+            return { recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["hero_heading", config.hero_heading || defaultConfig.hero_heading],
+                ["hero_subtext", config.hero_subtext || defaultConfig.hero_subtext],
+                ["modi_quote", config.modi_quote || defaultConfig.modi_quote],
+                ["cta_button_text", config.cta_button_text || defaultConfig.cta_button_text]
+            ]);
+        }
+
+        if (window.elementSdk) {
+            window.elementSdk.init({ defaultConfig, onConfigChange, mapToCapabilities, mapToEditPanelValues });
+        }
+
+        // --- Enhanced JS interactions & micro-animations ---
+
+        // Mobile nav toggle (smooth slide)
+        const mobileToggle = document.getElementById('mobile-toggle');
+        const navLinks = document.getElementById('nav-links');
+        let mobileOpen = false;
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', () => {
+                mobileOpen = !mobileOpen;
+                if (mobileOpen) {
+                    navLinks.style.display = 'flex';
+                    navLinks.style.flexDirection = 'column';
+                    navLinks.style.position = 'absolute';
+                    navLinks.style.right = '20px';
+                    navLinks.style.top = '80px';
+                    navLinks.style.background = 'linear-gradient(180deg, rgba(19,136,8,0.98), rgba(76,175,80,0.98))';
+                    navLinks.style.padding = '14px';
+                    navLinks.style.borderRadius = '10px';
+                    navLinks.style.boxShadow = '0 20px 50px rgba(0,0,0,0.18)';
+                    navLinks.style.transform = 'translateY(-6px)';
+                    navLinks.style.opacity = '0';
+                    requestAnimationFrame(() => { navLinks.style.transition = 'opacity 320ms var(--ease-default), transform 320ms var(--ease-default)'; navLinks.style.opacity = '1'; navLinks.style.transform = 'translateY(0)'; });
+                } else {
+                    navLinks.style.opacity = '0';
+                    navLinks.style.transform = 'translateY(-10px)';
+                    setTimeout(() => { navLinks.style.display = ''; navLinks.style.transition = ''; navLinks.style.transform = ''; navLinks.style.opacity = ''; navLinks.style.position = ''; navLinks.style.right = ''; navLinks.style.top = ''; navLinks.style.background = ''; navLinks.style.padding = ''; navLinks.style.borderRadius = ''; navLinks.style.boxShadow = ''; }, 350);
+                }
+            });
+        }
+
+        // Form submission with inline success message
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            const successMessage = document.getElementById('success-message');
+            const successText = document.getElementById('success-text');
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const interest = document.getElementById('interest').options[document.getElementById('interest').selectedIndex].text;
+            submitBtn.innerHTML = '<div class="spinner"></div> Sending...';
+            submitBtn.disabled = true;
+            setTimeout(() => {
+                successText.textContent = `Thank you, ${name}! We received your interest in "${interest}". We'll contact you at ${email} within 24 hours.`;
+                successMessage.style.display = 'flex';
+                successMessage.style.opacity = '0';
+                successMessage.style.transform = 'translateY(6px)';
+                requestAnimationFrame(() => { successMessage.style.transition = 'opacity 420ms var(--ease-default), transform 420ms var(--ease-default)'; successMessage.style.opacity = '1'; successMessage.style.transform = 'translateY(0)'; });
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Message';
+                submitBtn.disabled = false;
+                this.reset();
+                setTimeout(() => { successMessage.style.opacity = '0'; successMessage.style.transform = 'translateY(6px)'; setTimeout(() => { successMessage.style.display = 'none'; successMessage.style.transition = ''; successMessage.style.transform = ''; successMessage.style.opacity = ''; }, 420); }, 5000);
+            }, 1200);
+        });
+
+        // Chatbot functionality - Initially hidden, opens only on click
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        const chatbotWindow = document.getElementById('chatbot-window');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const sendMessageBtn = document.getElementById('send-message');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotForm = document.getElementById('chatbot-form');
+
+        // Floating animation class for chatbot button
+        const styleEl = document.createElement('style');
+        styleEl.innerHTML = `@keyframes floaty { 0% { transform: translateY(0); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0); } } .chatbot-button.floating { animation: floaty 3s ease-in-out infinite; } .chatbot-window{ max-width: 420px; width: calc(100vw - 40px); max-height: 72vh; overflow:hidden; display:flex; flex-direction:column; } .chatbot-body{ overflow-y:auto; } .sample-q{ background: rgba(0,0,0,0.06); border: none; padding:8px 10px; border-radius:14px; cursor:pointer; font-size:13px; } .sample-q:hover{ transform:translateY(-3px); }`;
+        document.head.appendChild(styleEl);
+
+        let chatbotOpen = false;
+
+        // Initialize chatbot as hidden
+        chatbotWindow.style.display = 'none';
+        chatbotWindow.setAttribute('aria-hidden', 'true');
+        chatbotToggle.setAttribute('aria-expanded', 'false');
+
+        function openChatbot() {
+            chatbotOpen = true;
+            chatbotWindow.style.display = 'flex';
+            chatbotWindow.setAttribute('aria-hidden', 'false');
+            chatbotToggle.setAttribute('aria-expanded', 'true');
+            // focus input after visible
+            setTimeout(() => { chatbotInput.focus(); }, 120);
+            // tiny entrance animation
+            chatbotWindow.style.opacity = '0';
+            chatbotWindow.style.transform = 'translateY(8px) scale(0.995)';
+            requestAnimationFrame(() => { 
+                chatbotWindow.style.transition = 'opacity 260ms ease, transform 260ms ease'; 
+                chatbotWindow.style.opacity = '1'; 
+                chatbotWindow.style.transform = 'translateY(0) scale(1)'; 
+            });
+            
+            // Add initial greeting if this is the first time opening
+            if (document.querySelectorAll('#chatbot-messages .bot-message').length <= 1) {
+                setTimeout(() => {
+                    const greetingDiv = document.createElement('div');
+                    greetingDiv.className = 'chat-message bot-message';
+                    greetingDiv.textContent = 'Hi! I\'m Mediator Assistant — choose a sample question or type below.';
+                    chatbotMessages.appendChild(greetingDiv);
+                }, 300);
+            }
+        }
+
+        function closeChatbot() {
+            chatbotOpen = false;
+            chatbotWindow.setAttribute('aria-hidden', 'true');
+            chatbotToggle.setAttribute('aria-expanded', 'false');
+            chatbotWindow.style.opacity = '0';
+            chatbotWindow.style.transform = 'translateY(8px) scale(0.995)';
+            setTimeout(() => { 
+                chatbotWindow.style.display = 'none'; 
+                chatbotWindow.style.transition = ''; 
+                chatbotWindow.style.transform = ''; 
+                chatbotWindow.style.opacity = ''; 
+            }, 260);
+        }
+
+        // Toggle chatbot on button click
+        chatbotToggle.addEventListener('click', () => {
+            if (chatbotOpen) {
+                closeChatbot();
+            } else {
+                openChatbot();
+            }
+        });
+        
+        chatbotClose.addEventListener('click', closeChatbot);
+
+        // helper: append messages and keep scroll at bottom
+        function appendMessage(text, cls='bot-message'){
+            const wrapper = document.createElement('div');
+            wrapper.className = 'chat-message ' + cls;
+            wrapper.textContent = text;
+            chatbotMessages.appendChild(wrapper);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // centralized response logic
+        function botReplyTo(userMessage){
+            const lowerMessage = userMessage.toLowerCase();
+            let botResponse = '';
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) botResponse = 'Hello! Welcome to Mediator. How can I assist you with waste management solutions today?';
+            else if (lowerMessage.includes('community') || lowerMessage.includes('join')) botResponse = 'Great! To join as a community, please fill out the contact form on our website. Our team will guide you through the registration process and help you start earning commissions.';
+            else if (lowerMessage.includes('earn') || lowerMessage.includes('money') || lowerMessage.includes('commission')) botResponse = 'Communities earn commissions based on the quantity and quality of recyclable waste collected. The more you collect, the more you earn!';
+            else if (lowerMessage.includes('waste') || lowerMessage.includes('recycle') || lowerMessage.includes('material')) botResponse = 'We accept plastic, paper, metal, glass, and e-waste. All materials are processed by certified recycling partners.';
+            else if (lowerMessage.includes('swachh bharat') || lowerMessage.includes('clean india')) botResponse = 'Mediator directly supports the Swachh Bharat Abhiyan by promoting proper waste management across India.';
+            else if (lowerMessage.includes('how') || lowerMessage.includes('work') || lowerMessage.includes('process')) botResponse = 'Our process is simple: 1) Communities enroll, 2) We provide resources, 3) Communities collect & earn, 4) We ensure responsible disposal.';
+            else if (lowerMessage.includes('partner') || lowerMessage.includes('company')) botResponse = "We welcome partnerships. Select 'Partnership' in the contact form or email info@mediatorindia.com to start the conversation.";
+            else if (lowerMessage.includes('contact') || lowerMessage.includes('reach') || lowerMessage.includes('email')) botResponse = "You can reach us at info@mediatorindia.com or call +91 123 456 7890 (Mon-Fri 9AM-6PM).";
+            else botResponse = "Thanks for asking — please fill the contact form for detailed help or ask another quick question.";
+            // simulate typing indicator
+            const typing = document.createElement('div'); 
+            typing.className='chat-message bot-message'; 
+            typing.id='typing-indicator'; 
+            typing.innerHTML='<div class="spinner"></div> Typing...'; 
+            chatbotMessages.appendChild(typing); 
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            setTimeout(() => { 
+                const t = document.getElementById('typing-indicator'); 
+                if(t) t.remove(); 
+                appendMessage(botResponse,'bot-message'); 
+            }, 700 + Math.random()*700);
+        }
+
+        // input handler
+        function handleChatbotInput(e){
+            if(e) e.preventDefault();
+            const userMessage = chatbotInput.value.trim();
+            if(!userMessage) return;
+            appendMessage(userMessage,'user-message');
+            chatbotInput.value = '';
+            botReplyTo(userMessage);
+        }
+
+        chatbotForm.addEventListener('submit', handleChatbotInput);
+        sendMessageBtn.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            handleChatbotInput(); 
+        });
+
+        // sample questions
+        document.addEventListener('click', (e) => {
+            const el = e.target.closest && e.target.closest('.sample-q');
+            if(el) { 
+                const q = el.getAttribute('data-q'); 
+                appendMessage(q,'user-message'); 
+                botReplyTo(q); 
+            }
+        });
+
+        // close on escape
+        document.addEventListener('keydown', (e) => { 
+            if(e.key === 'Escape' && chatbotOpen) closeChatbot(); 
+        });
+
+        // Close chatbot when clicking outside
+        document.addEventListener('click', (e) => {
+            if (chatbotOpen && 
+                !chatbotWindow.contains(e.target) && 
+                !chatbotToggle.contains(e.target)) {
+                closeChatbot();
+            }
+        });
+
+        // Scroll animations with stagger
+        function checkVisibility() {
+            const elements = document.querySelectorAll('.animate-in, .fade-in-left, .fade-in-right');
+            elements.forEach((element, idx) => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.style.transitionDelay = (idx % 6) * 60 + 'ms';
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', () => {
+            // subtle parallax effect for hero background
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                const offset = window.scrollY * 0.12; // parallax multiplier
+                hero.style.backgroundPosition = `center ${35 - offset}%`;
+            }
+            checkVisibility();
+
+            const header = document.getElementById('main-header');
+            const currentScroll = window.scrollY;
+            if (currentScroll > 100) { 
+                header.style.boxShadow = '0 10px 40px rgba(0,0,0,0.18)'; 
+                header.style.transform = 'translateY(-3px)'; 
+                header.style.padding = '6px 0'; 
+            } else { 
+                header.style.boxShadow = 'var(--shadow-1)'; 
+                header.style.transform = 'translateY(0)'; 
+                header.style.padding = ''; 
+            }
+
+            const scrollToTopBtn = document.getElementById('scroll-to-top');
+            if (window.scrollY > 500) {
+                scrollToTopBtn.style.display = 'flex'; 
+            } else { 
+                scrollToTopBtn.style.display = 'none'; 
+            }
+        });
+
+        window.addEventListener('load', () => {
+            checkVisibility();
+            
+            // initialize stat observer
+            const statsSection = document.querySelector('.stats-section');
+            if (statsSection) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const counters = entry.target.querySelectorAll('.stat-number');
+                            counters.forEach(counter => {
+                                if (counter.textContent.trim() === '0') animateCounter(counter);
+                            });
+                        }
+                    });
+                }, { threshold: 0.45 });
+                observer.observe(statsSection);
+            }
+        });
+
+        // Counter animation: smooth ease-out
+        function animateCounter(element) {
+            const target = parseInt(element.getAttribute('data-target'));
+            const duration = 1400;
+            const start = performance.now();
+            function step(now) {
+                const elapsed = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - elapsed, 3); // easeOutCubic
+                const current = Math.floor(eased * target);
+                element.textContent = current.toLocaleString();
+                if (elapsed < 1) requestAnimationFrame(step); else element.textContent = target.toLocaleString() + '+';
+            }
+            requestAnimationFrame(step);
+        }
+
+        function scrollToTop() { 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        }
+    </script>
+ </body>
+</html>
