@@ -4,7 +4,7 @@
 
 **Connecting Communities, Reducing Waste, and Promoting Sustainability**
 
-![Mediator Banner](banner.jpeg)
+![Mediator Banner](banner.jpg)
 
 ---
 
